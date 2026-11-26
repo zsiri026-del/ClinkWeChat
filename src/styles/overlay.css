@@ -1,0 +1,79 @@
+.overlay {
+  position: absolute;
+  inset: 0;
+  background: var(--grad-stage);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 5;
+}
+
+.stage-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 28px 36px;
+  min-width: 280px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.88);
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  box-shadow: 0 12px 34px rgba(15, 23, 42, 0.08);
+}
+
+.spinner {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 3px solid rgba(15, 23, 42, 0.08);
+  border-top-color: var(--accent);
+  border-right-color: var(--accent-2);
+  animation: spin 0.85s linear infinite;
+  margin-bottom: 6px;
+}
+
+.overlay.hidden .spinner {
+  animation: none;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.err-badge {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #f97316, #e11d48);
+  color: #fff;
+  font-size: 20px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 4px;
+  box-shadow: 0 6px 16px rgba(225, 29, 72, 0.25);
+}
+
+.ov-title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.ov-sub {
+  margin: 0;
+  font-size: 12px;
+  color: var(--text-sub);
+  max-width: 300px;
+  text-align: center;
+}
+
+.err-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+}

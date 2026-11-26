@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="aurora">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'self'; script-src 'self'; img-src 'self' data:;" />
+  <title>客户联络中心 · 在线客服</title>
+  <link rel="stylesheet" href="styles/main.css" />
+</head>
+<body>
+  <aside class="rail" aria-label="功能导航">
+    <div class="avatar" title="ClinkWeChat 客服工作台"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 13v-1a8 8 0 0 1 16 0v1"/><path d="M4 13h2v5H5a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1Z"/><path d="M20 13h-2v5h1a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1Z"/><path d="M18 18v.5a2.5 2.5 0 0 1-2.5 2.5H13"/></svg></div>
+    <button class="rail-btn active" data-tip="在线会话" id="railChat"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12.5a7.5 7.5 0 0 1-7.5 7.5 8.2 8.2 0 0 1-3.1-.6L5 21l1.2-3.6A7.4 7.4 0 0 1 5 12.5 7.5 7.5 0 0 1 12.5 5 7.5 7.5 0 0 1 20 12.5Z"/><circle cx="9.5" cy="12.5" r="1" fill="currentColor" stroke="none"/><circle cx="12.7" cy="12.5" r="1" fill="currentColor" stroke="none"/><circle cx="15.9" cy="12.5" r="1" fill="currentColor" stroke="none"/></svg></button>
+    <div class="rail-spacer"></div>
+    <button class="rail-btn" data-tip="切换渐变主题" id="themeCycleBtn"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 3.5a8.5 8.5 0 0 0 0 17V3.5Z" fill="currentColor" opacity=".32"/></svg></button>
+    <button class="rail-btn" data-tip="一键释放内存" id="railBoostBtn"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4.5 13.5H12L11 22l8.5-11.5H12L13 2Z"/></svg></button>
+    <button class="rail-btn" data-tip="快捷账号登录" id="loginBtn"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="8.4" cy="12" r="4"/><path d="M12.4 12H21"/><path d="M18.2 12v3"/><path d="M15.8 12v2.2"/></svg></button>
+    <button class="rail-btn" data-tip="系统设置" id="settingsBtn"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-2.9 1.2v.2a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-2.9-1.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1A1.7 1.7 0 0 0 3 15a2 2 0 1 1 0-4h.2a1.7 1.7 0 0 0 1.2-2.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1A1.7 1.7 0 0 0 10 4.2V4a2 2 0 1 1 4 0v.2a1.7 1.7 0 0 0 2.9 1.2l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1A1.7 1.7 0 0 0 20.8 11h.2a2 2 0 1 1 0 4h-.2Z"/></svg></button>
+  </aside>
+  <header class="titlebar" id="titlebar">
+    <div class="brand">
+      <span class="status-dot" id="statusDot" data-state="loading"></span>
+      <span class="brand-name">客户联络中心</span>
+      <span class="brand-sub" id="pageTitle">在线客服工作台</span>
+    </div>
+    <div class="tb-actions">
+      <button class="mem-pill" id="memPill" title="点击清理缓存并释放内存"><span class="mem-dot"></span><span id="memText">-- MB</span></button>
+      <button class="tb-btn" id="pinBtn" title="窗口置顶"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4h6l-1 5 4 3v2H6v-2l4-3-1-5Z"/><path d="M12 14v6"/></svg></button>
+      <div class="zoom-group">
+        <button class="tb-btn txt" id="zoomOut" title="缩小页面">A−</button>
+        <button class="tb-btn zoom-val" id="zoomReset" title="点击重置缩放">100%</button>
+        <button class="tb-btn txt" id="zoomIn" title="放大页面">A+</button>
+      </div>
+      <button class="tb-btn" id="reloadBtn" title="刷新页面 (F5)"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 1 0-2.4 6.1"/><path d="M20 5v6h-6"/></svg></button>
+      <span class="sep"></span>
+      <button class="wc" id="minBtn" title="最小化到任务栏"><svg viewBox="0 0 12 12" width="10" height="10"><path d="M2.2 6h7.6" stroke="currentColor" stroke-width="1.2"/></svg></button>
+      <button class="wc" id="maxBtn" title="最大化 / 还原"><svg viewBox="0 0 12 12" width="10" height="10"><rect x="2.2" y="2.2" width="7.6" height="7.6" fill="none" stroke="currentColor" stroke-width="1.15"/></svg></button>
+      <button class="wc close" id="closeBtn" title="关闭窗口 / 收起至托盘"><svg viewBox="0 0 12 12" width="10" height="10"><path d="M2.3 2.3l7.4 7.4M9.7 2.3l-7.4 7.4" stroke="currentColor" stroke-width="1.2"/></svg></button>
+    </div>
+  </header>
+  <main class="stage">
+    <div class="overlay" id="overlay">
+      <div class="stage-card" id="loadingView">
+        <div class="spinner"></div>
+        <p class="ov-title">正在连接客服工作台…</p>
+        <p class="ov-sub" id="ovSub">agent-bj.clink.cn</p>
+      </div>
+      <div class="stage-card hidden" id="errorView">
+        <div class="err-badge">!</div>
+        <p class="ov-title">网络连接失败</p>
+        <p class="ov-sub" id="errDesc">请检查网络后重试</p>
+        <div class="err-actions"><button class="btn primary" id="retryBtn">重新连接</button><button class="btn ghost" id="externalBtn">浏览器打开</button></div>
+      </div>
+    </div>
+  </main>
+  <div class="popup hidden" id="popup">
+    <div class="popup-head"><span>系统设置</span><span class="popup-ver" id="verText">v2.0.0</span></div>
+    <div class="theme-bar" id="themeBar"><span class="theme-label">渐变主题</span><div class="swatches"><button class="swatch" data-theme-pick="aurora" title="极光翠绿"></button><button class="swatch" data-theme-pick="twilight" title="暮光靛紫"></button><button class="swatch" data-theme-pick="ocean" title="晴空蔚蓝"></button><button class="swatch" data-theme-pick="sunset" title="暖阳琥珀"></button></div></div>
+    <button class="popup-item" id="miLogin"><span>快捷账号登录…</span></button>
+    <button class="popup-item switch" id="miAutoFill"><span>登录页自动填入上次账号</span><span class="toggle" id="autoFillCheck"></span></button>
+    <button class="popup-item switch" id="miFlash"><span>新消息任务栏闪烁</span><span class="toggle" id="flashCheck"></span></button>
+    <button class="popup-item switch" id="miCloseToTray"><span>点 × 收起至托盘</span><span class="toggle" id="closeTrayCheck"></span></button>
+    <button class="popup-item switch" id="miAutoMem"><span>后台闲置自动释放内存</span><span class="toggle" id="autoMemCheck"></span></button>
+    <div class="popup-div"></div>
+    <button class="popup-item" id="miOptimizeMem"><span>立即清理缓存释放内存</span></button>
+    <button class="popup-item" id="miClear"><span>清除登录状态并重新登录</span></button>
+    <button class="popup-item" id="miExternal"><span>在系统浏览器中打开</span></button>
+    <button class="popup-item" id="miDevtools"><span>开发者工具 (F12)</span></button>
+    <button class="popup-item" id="miRestart"><span>重启客户端</span></button>
+    <button class="popup-item danger" id="miQuit"><span>彻底退出客户端</span></button>
+  </div>
+  <div class="modal hidden" id="loginModal">
+    <div class="modal-mask" id="loginMask"></div>
+    <div class="modal-card">
+      <div class="modal-head">
+        <div><div class="modal-title">快捷账号登录</div><div class="modal-sub">本地 DPAPI 加密存储 · 绝不上传</div></div>
+        <button class="modal-x" id="loginClose" title="关闭">×</button>
+      </div>
+      <div class="acc-list" id="accList"></div>
+      <div class="acc-form">
+        <input id="accLabel" placeholder="备注名（选填，如：张三-早班）" autocomplete="off" />
+        <input id="accCno" placeholder="企业编号（登录页第一栏）" autocomplete="off" />
+        <input id="accUser" placeholder="账号 / 工号" autocomplete="off" />
+        <input id="accPwd" type="password" placeholder="密码" autocomplete="new-password" />
+        <div class="acc-actions"><button class="btn primary" id="accSaveLogin">保存并填入</button><button class="btn ghost" id="accSaveOnly">仅保存</button></div>
+        <p class="acc-tip" id="accTip">账号密码仅加密保存在本机，填好滑块验证后点「登录系统」即可。</p>
+      </div>
+    </div>
+  </div>
+  <script defer src="renderer/core.js"></script><script defer src="renderer/theme.js"></script><script defer src="renderer/status.js"></script>
+  <script defer src="renderer/toolbar.js"></script><script defer src="renderer/memory-ui.js"></script><script defer src="renderer/settings.js"></script>
+  <script defer src="renderer/accounts-list.js"></script><script defer src="renderer/accounts.js"></script><script defer src="renderer/app.js"></script>
+</body>
+</html>

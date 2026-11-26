@@ -1,0 +1,29 @@
+.theme-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 7px 10px;
+  margin-bottom: 4px;
+  border-radius: 9px;
+  background: var(--surface-soft);
+}
+
+.theme-label { font-size: 12px; color: var(--text-sub); }
+.swatches { display: flex; gap: 7px; }
+
+.swatch {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  cursor: pointer;
+  padding: 0;
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.2);
+  transition: transform 0.13s, box-shadow 0.13s;
+}
+.swatch:hover { transform: scale(1.14); }
+.swatch.active { box-shadow: 0 0 0 2px var(--accent); transform: scale(1.1); }
+.swatch[data-theme-pick="aurora"] { background: linear-gradient(135deg, #10b981, #06b6d4); }
+.swatch[data-theme-pick="twilight"] { background: linear-gradient(135deg, #6366f1, #ec4899); }
+.swatch[data-theme-pick="ocean"] { background: linear-gradient(135deg, #0ea5e9, #14b8a6); }
+.swatch[data-theme-pick="sunset"] { background: linear-gradient(135deg, #f97316, #ec4899); }

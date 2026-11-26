@@ -1,0 +1,82 @@
+.popup {
+  position: fixed;
+  left: 74px;
+  bottom: 14px;
+  width: 264px;
+  background: var(--surface);
+  border-radius: 14px;
+  box-shadow: 0 14px 40px rgba(15, 23, 42, 0.18), 0 0 0 1px rgba(15, 23, 42, 0.06);
+  padding: 8px;
+  z-index: 60;
+  animation: pop 0.14s ease-out;
+}
+
+@keyframes pop {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
+}
+
+.popup-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 10px 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.popup-ver {
+  font-size: 10.5px;
+  font-weight: 500;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent-dark);
+}
+
+.popup-div { height: 1px; background: #eef2f6; margin: 5px 6px; }
+
+.popup-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  text-align: left;
+  border: 0;
+  background: transparent;
+  font-family: inherit;
+  font-size: 12.5px;
+  color: var(--text);
+  padding: 8px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.12s;
+}
+.popup-item:hover { background: var(--surface-soft); }
+.popup-item.danger { color: var(--danger); }
+.popup-item.danger:hover { background: #fff1f2; }
+
+.toggle {
+  width: 30px;
+  height: 17px;
+  border-radius: 999px;
+  background: #cbd5e1;
+  position: relative;
+  flex: 0 0 auto;
+  transition: background 0.16s;
+}
+.toggle::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.18);
+  transition: transform 0.16s;
+}
+.toggle.on { background: var(--grad-brand); }
+.toggle.on::after { transform: translateX(13px); }

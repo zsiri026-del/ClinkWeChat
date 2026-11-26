@@ -1,0 +1,71 @@
+{
+  "name": "clink-wechat",
+  "version": "2.0.0",
+  "private": true,
+  "description": "渐变美学风格桌面客户端：内嵌 Clink 客户联络中心在线客服工作台（低内存防泄漏重构版）",
+  "main": "src/main/index.js",
+  "author": "zsiri026-del",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron .",
+    "shortcut": "electron . --install-shortcut",
+    "check": "node scripts/check-syntax.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "build": "electron-builder --win",
+    "note": "node scripts/changelog-add.mjs",
+    "icon": "python scripts/make_icon.py",
+    "badge": "python scripts/make-badge.py"
+  },
+  "devDependencies": {
+    "electron": "45.2.3",
+    "electron-builder": "^26.18.0"
+  },
+  "build": {
+    "appId": "com.local.clinkwechat",
+    "productName": "ClinkWeChat",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "src/**/*",
+      "package.json",
+      "!tests/**",
+      "!scripts/**",
+      "!shots/**"
+    ],
+    "extraResources": [
+      {
+        "from": "assets",
+        "to": "assets"
+      }
+    ],
+    "win": {
+      "icon": "assets/icon-v2.ico",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "ClinkWeChat 客服工作台",
+      "artifactName": "ClinkWeChat-${version}-Setup-x64.${ext}"
+    },
+    "portable": {
+      "artifactName": "ClinkWeChat-${version}-Portable-x64.${ext}"
+    }
+  }
+}

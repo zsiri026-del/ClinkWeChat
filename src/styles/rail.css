@@ -1,0 +1,98 @@
+.rail {
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: var(--rail-w);
+  background: var(--grad-rail);
+  border-right: 1px solid var(--rail-border);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 14px 0 14px;
+  gap: 8px;
+  z-index: 30;
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: var(--grad-brand);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6px 18px var(--accent-ring);
+  margin-bottom: 12px;
+  cursor: default;
+}
+
+.rail-btn {
+  width: 42px;
+  height: 42px;
+  border: 0;
+  border-radius: 11px;
+  background: transparent;
+  color: var(--rail-icon);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.16s, color 0.16s, transform 0.12s;
+  position: relative;
+}
+
+.rail-btn:hover {
+  background: var(--rail-hover-bg);
+  color: #f8fafc;
+}
+
+.rail-btn:active {
+  transform: scale(0.95);
+}
+
+.rail-btn.active {
+  background: var(--rail-active-bg);
+  color: #ffffff;
+}
+
+.rail-btn.active::before {
+  content: "";
+  position: absolute;
+  left: -12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3.5px;
+  height: 22px;
+  border-radius: 0 4px 4px 0;
+  background: var(--grad-brand);
+}
+
+.rail-spacer {
+  flex: 1;
+}
+
+.rail-btn::after {
+  content: attr(data-tip);
+  position: absolute;
+  left: 52px;
+  top: 50%;
+  transform: translateY(-50%) translateX(-4px);
+  background: rgba(15, 23, 42, 0.94);
+  color: #f8fafc;
+  font-size: 12px;
+  line-height: 1;
+  padding: 7px 10px;
+  border-radius: 7px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.14s, transform 0.14s;
+  z-index: 50;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.24);
+}
+
+.rail-btn:hover::after {
+  opacity: 1;
+  transform: translateY(-50%) translateX(0);
+}
