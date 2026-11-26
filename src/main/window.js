@@ -11,7 +11,7 @@ const { createSiteView, layoutView, scheduleLayoutView, destroySiteView } = requ
 const { createTray, hideToTray, refreshTrayMenu } = require('./tray');
 const { runDiagIfNeeded } = require('./diag');
 const { readPkgVersion } = require('./semver');
-const { confirmBootSuccess } = require('./boot');
+const { confirmBootSuccess } = require('./boot-meta');
 
 function createWindow() {
   const saved = sanitizeBounds(readWindowState());
