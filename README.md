@@ -65,6 +65,6 @@ npm run shortcut     # 在桌面创建启动快捷方式
 
 ## 下载预编译安装包
 可直接前往本仓库 [Releases](https://github.com/zsiri026-del/ClinkWeChat/releases/latest) 页面下载：
-- `客服在线平台-2.1.0-Setup-x64.exe`：Windows 安装向导版（支持自定义目录与桌面/开始菜单快捷方式）
-- `客服在线平台-2.1.0-Portable-x64.exe`：Windows 绿色便携单文件版（双击即用、免安装）
+- `KefuOnline-2.1.0-Setup-x64.exe`：Windows 安装向导版（安装后桌面与开始菜单名称均为「客服在线平台」）
+- `KefuOnline-2.1.0-Portable-x64.exe`：Windows 绿色便携单文件版（双击即用、免安装）
 - `SHA256SUMS.txt`：安装包 SHA-256 完整性校验值

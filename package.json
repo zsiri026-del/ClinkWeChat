@@ -62,10 +62,10 @@
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
       "shortcutName": "客服在线平台",
-      "artifactName": "客服在线平台-${version}-Setup-x64.${ext}"
+      "artifactName": "KefuOnline-${version}-Setup-x64.${ext}"
     },
     "portable": {
-      "artifactName": "客服在线平台-${version}-Portable-x64.${ext}"
+      "artifactName": "KefuOnline-${version}-Portable-x64.${ext}"
     }
   }
 }
