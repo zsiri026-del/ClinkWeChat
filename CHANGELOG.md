@@ -1,5 +1,23 @@
 # 变更记录
 
+## 2.2.0 — 2026-11-26
+
+### [2026-11-26 17:55:00] feat: 新增后台自动推送与秒级热更新系统（含防崩溃回滚与流式全量兜底）
+
+- 变更：
+  1. **热更新引导与防崩溃回滚**（`src/main/boot.js`）：主入口升级为轻量引导器，启动时自动加载已激活的高版本本地热更包；若连续 2 次启动未能正常渲染主窗口则自动回滚至内置版本；安装新版 `.exe` 后自动清理旧热更残留。
+  2. **双层后台静默更新引擎**（`src/main/updater.js`、`src/main/hot-apply.js`、`src/main/update-download.js`、`src/main/semver.js`）：
+     - 启动 15 秒后及每 4 小时自动检查 GitHub Releases `update-manifest.json`（定时器全托管，退出即清理）；
+     - 常规 UI/脚本更新自动后台拉取 ~25 KB `hot-patch.json.gz`，严格校验 SHA-256 与白名单相对路径（拦截路径穿越），原子替换并自动清理旧版本；
+     - Electron 内核升级场景自动流式下载全量 `.exe`（避免大缓冲占内存）并校验 SHA-256。
+  3. **前端与托盘交互**（`src/renderer/updater-ui.js`、`src/index.html`）：标题栏在更新就绪时显示渐变胶囊「↑ 热更 vX.Y.Z · 重启生效」，设置菜单新增「后台自动推送与热更新」开关及「检查更新…」入口，托盘菜单同步新增「检查更新」。
+  4. **热补丁打包脚本与自动化测试**（`scripts/make-hot-patch.mjs`、`tests/updater.test.mjs`）：一键生成 `hot-patch-*.json.gz`、`update-manifest.json` 与 `SHA256SUMS.txt`，补充 SemVer、SHA-256 篡改拒绝与路径穿越拦截单元测试。
+- 原因：免除后续版本更新每次手动重新下载安装包的麻烦，实现后台静默推送与 1 秒热更新生效。
+- 文件：`src/main/boot.js`、`src/main/semver.js`、`src/main/hot-apply.js`、`src/main/update-download.js`、`src/main/updater.js`、`src/renderer/updater-ui.js`、`scripts/make-hot-patch.mjs`、`tests/updater.test.mjs`、`src/main/config.js`、`src/main/store.js`、`src/main/window.js`、`src/main/index.js`、`src/main/ipc.js`、`src/main/tray-menu.js`、`src/preload.js`、`src/index.html`、`src/styles/titlebar-controls.css`、`src/renderer/settings.js`、`src/renderer/app.js`、`package.json`
+- 验证：`npm run check`、`npm test`（7/7 通过）、v2.2.0 打包态实机冒烟测试与热更清单发布核验通过。
+
+---
+
 ## 2.1.0 — 2026-11-26
 
 ### [2026-11-26 17:25:00] style: 全新极光渐变立体桌面图标 + 全局更名为「客服在线平台」

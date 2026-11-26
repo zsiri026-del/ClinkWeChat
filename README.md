@@ -1,6 +1,6 @@
-# 客服在线平台（ClinkWeChat 2.1）· 渐变美学客服工作台客户端
+# 客服在线平台（v2.2）· 渐变美学客服工作台客户端
 
-基于原 `ClinkWeChat` 完整重构的 Windows 桌面客户端「客服在线平台」，将 Clink「客户联络中心」在线客服工作台（`agent-bj.clink.cn`）封装为轻量、高颜值的桌面应用，100% 保留原版全部实用功能，并重点解决长时间运行导致的 CPU 抖动与内存泄漏问题。
+基于原 `ClinkWeChat` 完整重构的 Windows 桌面客户端「客服在线平台」，将 Clink「客户联络中心」在线客服工作台（`agent-bj.clink.cn`）封装为轻量、高颜值的桌面应用，内置**后台自动推送与秒级热更新**，100% 保留原版全部实用功能，并重点解决长时间运行导致的 CPU 抖动与内存泄漏问题。
 
 ## 核心升级
 
@@ -58,13 +58,19 @@ tests/              核心模块单元测试
 ```bash
 npm start            # 启动客户端
 npm run check        # 检查全部源码 JS 语法与 ≤100 行拆分规范
-npm test             # 运行单元测试
+npm test             # 运行单元测试（含热更新校验与防路径穿越测试）
 npm run build        # 打包 Windows 安装版 (Setup.exe) 与便携单文件版 (Portable.exe)
+npm run patch        # 生成轻量热更新包 hot-patch-*.json.gz 与 update-manifest.json
 npm run shortcut     # 在桌面创建启动快捷方式
 ```
 
+## 后台自动推送与热更新机制
+- **秒级热更新（~25 KB）**：启动后 15 秒及每 4 小时自动检查 GitHub Releases 最新 `update-manifest.json`，常规 UI/功能更新后台静默下载 `hot-patch-*.json.gz` 并严格校验 SHA-256，解压激活后标题栏弹出「热更重启生效」胶囊，1 秒无感升级；若热更包异常导致连续 2 次启动失败，自动回滚至内置版本。
+- **全量安装包兜底**：当底层 Electron 内核升级时，自动以流式写入（低内存 < 2 MB）下载新版安装包并校验 SHA-256，点击即可安装。
+
 ## 下载预编译安装包
 可直接前往本仓库 [Releases](https://github.com/zsiri026-del/ClinkWeChat/releases/latest) 页面下载：
-- `KefuOnline-2.1.0-Setup-x64.exe`：Windows 安装向导版（安装后桌面与开始菜单名称均为「客服在线平台」）
-- `KefuOnline-2.1.0-Portable-x64.exe`：Windows 绿色便携单文件版（双击即用、免安装）
-- `SHA256SUMS.txt`：安装包 SHA-256 完整性校验值
+- `KefuOnline-2.2.0-Setup-x64.exe`：Windows 安装向导版（安装后桌面与开始菜单名称均为「客服在线平台」，装完一次后未来版本自动热更）
+- `KefuOnline-2.2.0-Portable-x64.exe`：Windows 绿色便携单文件版（双击即用、免安装，同样支持后台热更新）
+- `hot-patch-2.2.0.json.gz` + `update-manifest.json`：后台热更新清单与增量补丁
+- `SHA256SUMS.txt`：安装包与补丁 SHA-256 完整性校验值

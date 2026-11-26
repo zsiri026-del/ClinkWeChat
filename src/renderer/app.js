@@ -11,6 +11,7 @@
     Shell.memory.init();
     Shell.settings.init();
     Shell.accounts.init();
+    Shell.updater.init();
 
     const onKey = (e) => {
       if (e.key === 'Escape') {

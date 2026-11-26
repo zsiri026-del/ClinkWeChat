@@ -7,6 +7,7 @@ const { getSettings, updateSettings } = require('./store');
 const { clearAttention, notifyNewMessage } = require('./attention');
 const { scheduleAutoFill } = require('./autofill');
 const { getMemoryStats, optimizeMemory } = require('./memory');
+const { getUpdateState, checkForUpdates, applyDownloadedUpdate } = require('./updater');
 const { registerWindowIpc } = require('./ipc-window');
 const { registerAccountIpc } = require('./ipc-accounts');
 
@@ -70,6 +71,9 @@ function registerIpc(createWinFn) {
   ipcMain.handle('site:state', () => ctx.lastStatus);
   ipcMain.handle('app:memory-stats', () => getMemoryStats());
   ipcMain.handle('app:memory-optimize', () => optimizeMemory('manual'));
+  ipcMain.handle('app:update-state', () => getUpdateState());
+  ipcMain.handle('app:update-check', () => checkForUpdates(true));
+  ipcMain.handle('app:update-apply', () => applyDownloadedUpdate());
   ipcMain.handle('settings:get', () => getSettings());
 
   ipcMain.handle('settings:set', (_e, patch) => {

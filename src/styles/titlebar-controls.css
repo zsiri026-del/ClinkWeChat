@@ -7,6 +7,24 @@
   -webkit-app-region: no-drag;
 }
 
+.upd-pill {
+  height: 24px;
+  padding: 0 10px;
+  margin-right: 6px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--grad-brand);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  box-shadow: 0 3px 10px var(--accent-ring);
+  transition: transform 0.12s, background 0.15s;
+}
+.upd-pill:hover { background: var(--grad-brand-hover); }
+.upd-pill:active { transform: scale(0.96); }
+
 .mem-pill {
   height: 24px;
   padding: 0 9px;

@@ -53,4 +53,10 @@ contextBridge.exposeInMainWorld('app', {
     remove: (id) => ipcRenderer.invoke('acc:remove', id),
     login: (id) => ipcRenderer.invoke('acc:login', id),
   },
+  update: {
+    state: () => ipcRenderer.invoke('app:update-state'),
+    check: () => ipcRenderer.invoke('app:update-check'),
+    apply: () => ipcRenderer.invoke('app:update-apply'),
+    onState: (cb) => subscribe('app:update-state', cb),
+  },
 });

@@ -9,6 +9,7 @@
     flashOnMessage: true,
     closeToTray: true,
     autoOptimizeMem: true,
+    autoUpdate: true,
     theme: 'aurora',
   };
 
@@ -18,6 +19,7 @@
     $('flashCheck').classList.toggle('on', !!current.flashOnMessage);
     $('closeTrayCheck').classList.toggle('on', current.closeToTray !== false);
     $('autoMemCheck').classList.toggle('on', current.autoOptimizeMem !== false);
+    $('autoUpdateCheck').classList.toggle('on', current.autoUpdate !== false);
     if (Shell.theme) Shell.theme.apply(current.theme);
   }
 
@@ -59,6 +61,7 @@
     bind('miFlash', () => toggleSetting('flashOnMessage'));
     bind('miCloseToTray', () => toggleSetting('closeToTray'));
     bind('miAutoMem', () => toggleSetting('autoOptimizeMem'));
+    bind('miAutoUpdate', () => toggleSetting('autoUpdate'));
     bind('miOptimizeMem', () => { closePopup(); Shell.memory.runOptimize(); });
     bind('miClear', async () => { closePopup(); Shell.hasLoadedOnce = false; await window.app.clear(); });
     bind('miExternal', () => { closePopup(); window.app.external(); });

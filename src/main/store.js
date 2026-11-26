@@ -49,7 +49,7 @@ function saveSettings() {
 
 function updateSettings(patch) {
   if (!patch || typeof patch !== 'object') return getSettings();
-  const boolKeys = ['flashOnMessage', 'autoFill', 'closeToTray', 'autoOptimizeMem', 'trayTipShown'];
+  const boolKeys = ['flashOnMessage', 'autoFill', 'closeToTray', 'autoOptimizeMem', 'autoUpdate', 'trayTipShown'];
   for (const key of boolKeys) {
     if (typeof patch[key] === 'boolean') settings[key] = patch[key];
   }

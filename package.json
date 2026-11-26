@@ -1,9 +1,9 @@
 {
   "name": "clink-wechat",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "private": true,
-  "description": "客服在线平台：渐变美学风格在线客服桌面客户端（低内存防泄漏重构版）",
-  "main": "src/main/index.js",
+  "description": "客服在线平台：渐变美学风格在线客服桌面客户端（低内存防泄漏 + 后台热更新版）",
+  "main": "src/main/boot.js",
   "author": "zsiri026-del",
   "license": "MIT",
   "scripts": {
@@ -12,6 +12,7 @@
     "check": "node scripts/check-syntax.mjs",
     "test": "node --test tests/*.test.mjs",
     "build": "electron-builder --win",
+    "patch": "node scripts/make-hot-patch.mjs",
     "note": "node scripts/changelog-add.mjs",
     "icon": "electron scripts/render-icon.js",
     "badge": "python scripts/make-badge.py"

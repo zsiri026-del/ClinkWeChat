@@ -9,6 +9,9 @@ const TARGET_URL =
 const TRUSTED_HOSTS = ['clink.cn'];
 const PARTITION = 'persist:clink';
 const APP_ID = 'com.local.clinkwechat';
+const UPDATE_MANIFEST_URL =
+  process.env.CLINK_UPDATE_URL ||
+  'https://github.com/zsiri026-del/ClinkWeChat/releases/latest/download/update-manifest.json';
 
 const RAIL_W = 66;
 const TITLE_H = 38;
@@ -22,14 +25,14 @@ const DEFAULT_SETTINGS = Object.freeze({
   trayTipShown: false,
   closeToTray: true,
   autoOptimizeMem: true,
+  autoUpdate: true,
   theme: 'aurora',
 });
 
 function assetPath(name) {
-  const base = process.resourcesPath && !process.defaultApp
-    ? path.join(process.resourcesPath, 'assets')
-    : path.join(ROOT, 'assets');
-  return path.join(base, name);
+  const local = path.join(ROOT, 'assets', name);
+  if (fs.existsSync(local)) return local;
+  return path.join(process.resourcesPath || ROOT, 'assets', name);
 }
 
 function isTrusted(url) {
@@ -57,6 +60,7 @@ module.exports = {
   TRUSTED_HOSTS,
   PARTITION,
   APP_ID,
+  UPDATE_MANIFEST_URL,
   RAIL_W,
   TITLE_H,
   TITLE_UNREAD_RE,

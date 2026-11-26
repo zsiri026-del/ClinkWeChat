@@ -3,6 +3,7 @@
 const { app, Menu } = require('electron');
 const { ctx, send } = require('./state');
 const { optimizeMemory } = require('./memory');
+const { checkForUpdates } = require('./updater');
 
 function buildTrayMenu({ showFn, refreshFn }) {
   const onTop = !!(ctx.win && !ctx.win.isDestroyed() && ctx.win.isAlwaysOnTop());
@@ -22,6 +23,7 @@ function buildTrayMenu({ showFn, refreshFn }) {
         },
       },
       { label: '立即释放内存', click: () => optimizeMemory('tray').catch(() => {}) },
+      { label: '检查更新', click: () => { showFn(); checkForUpdates(true).catch(() => {}); } },
       { type: 'separator' },
       {
         label: '重启客户端',

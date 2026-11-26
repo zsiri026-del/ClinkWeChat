@@ -23,6 +23,7 @@
       <span class="brand-sub" id="pageTitle">在线客服工作台</span>
     </div>
     <div class="tb-actions">
+      <button class="upd-pill hidden" id="updatePill" title="点击立即重启应用新版本"></button>
       <button class="mem-pill" id="memPill" title="点击清理缓存并释放内存"><span class="mem-dot"></span><span id="memText">-- MB</span></button>
       <button class="tb-btn" id="pinBtn" title="窗口置顶"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4h6l-1 5 4 3v2H6v-2l4-3-1-5Z"/><path d="M12 14v6"/></svg></button>
       <div class="zoom-group">
@@ -53,14 +54,16 @@
     </div>
   </main>
   <div class="popup hidden" id="popup">
-    <div class="popup-head"><span>系统设置</span><span class="popup-ver" id="verText">v2.1.0</span></div>
+    <div class="popup-head"><span>系统设置</span><span class="popup-ver" id="verText">v2.2.0</span></div>
     <div class="theme-bar" id="themeBar"><span class="theme-label">渐变主题</span><div class="swatches"><button class="swatch" data-theme-pick="aurora" title="极光翠绿"></button><button class="swatch" data-theme-pick="twilight" title="暮光靛紫"></button><button class="swatch" data-theme-pick="ocean" title="晴空蔚蓝"></button><button class="swatch" data-theme-pick="sunset" title="暖阳琥珀"></button></div></div>
     <button class="popup-item" id="miLogin"><span>快捷账号登录…</span></button>
     <button class="popup-item switch" id="miAutoFill"><span>登录页自动填入上次账号</span><span class="toggle" id="autoFillCheck"></span></button>
     <button class="popup-item switch" id="miFlash"><span>新消息任务栏闪烁</span><span class="toggle" id="flashCheck"></span></button>
     <button class="popup-item switch" id="miCloseToTray"><span>点 × 收起至托盘</span><span class="toggle" id="closeTrayCheck"></span></button>
     <button class="popup-item switch" id="miAutoMem"><span>后台闲置自动释放内存</span><span class="toggle" id="autoMemCheck"></span></button>
+    <button class="popup-item switch" id="miAutoUpdate"><span>后台自动推送与热更新</span><span class="toggle" id="autoUpdateCheck"></span></button>
     <div class="popup-div"></div>
+    <button class="popup-item" id="miCheckUpdate"><span id="checkUpdateText">检查更新…</span></button>
     <button class="popup-item" id="miOptimizeMem"><span>立即清理缓存释放内存</span></button>
     <button class="popup-item" id="miClear"><span>清除登录状态并重新登录</span></button>
     <button class="popup-item" id="miExternal"><span>在系统浏览器中打开</span></button>
@@ -88,6 +91,6 @@
   </div>
   <script defer src="renderer/core.js"></script><script defer src="renderer/theme.js"></script><script defer src="renderer/status.js"></script>
   <script defer src="renderer/toolbar.js"></script><script defer src="renderer/memory-ui.js"></script><script defer src="renderer/settings.js"></script>
-  <script defer src="renderer/accounts-list.js"></script><script defer src="renderer/accounts.js"></script><script defer src="renderer/app.js"></script>
+  <script defer src="renderer/accounts-list.js"></script><script defer src="renderer/accounts.js"></script><script defer src="renderer/updater-ui.js"></script><script defer src="renderer/app.js"></script>
 </body>
 </html>
