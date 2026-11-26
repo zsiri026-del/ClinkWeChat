@@ -44,7 +44,7 @@ function hideToTray() {
     saveSettings();
     try {
       new Notification({
-        title: '客服工作台已在后台运行',
+        title: '客服在线平台已在后台运行',
         body: '窗口已收起至右下角托盘，新消息照常提醒，单击托盘图标即可唤回。',
         silent: true,
       }).show();
@@ -79,7 +79,7 @@ function createTray(createWinFn) {
     ctx.tray = null;
     return;
   }
-  ctx.tray.setToolTip('客户联络中心 · 在线客服工作台');
+  ctx.tray.setToolTip('客服在线平台');
   refreshTrayMenu(createWinFn, true);
   ctx.tray.on('click', () => showMainWindow(createWinFn));
   ctx.tray.on('double-click', () => showMainWindow(createWinFn));

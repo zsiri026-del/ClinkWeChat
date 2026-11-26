@@ -1,6 +1,6 @@
-# ClinkWeChat 2.0 · 渐变美学客服工作台客户端（低内存防泄漏重构版）
+# 客服在线平台（ClinkWeChat 2.1）· 渐变美学客服工作台客户端
 
-基于原 `ClinkWeChat` 完整重构的 Windows 桌面客户端，将 Clink「客户联络中心」在线客服工作台（`agent-bj.clink.cn`）封装为轻量、高颜值的桌面应用，100% 保留原版全部实用功能，并重点解决长时间运行导致的 CPU 抖动与内存泄漏问题。
+基于原 `ClinkWeChat` 完整重构的 Windows 桌面客户端「客服在线平台」，将 Clink「客户联络中心」在线客服工作台（`agent-bj.clink.cn`）封装为轻量、高颜值的桌面应用，100% 保留原版全部实用功能，并重点解决长时间运行导致的 CPU 抖动与内存泄漏问题。
 
 ## 核心升级
 
@@ -65,6 +65,6 @@ npm run shortcut     # 在桌面创建启动快捷方式
 
 ## 下载预编译安装包
 可直接前往本仓库 [Releases](https://github.com/zsiri026-del/ClinkWeChat/releases/latest) 页面下载：
-- `ClinkWeChat-2.0.0-Setup-x64.exe`：Windows 安装向导版（支持自定义目录与桌面/开始菜单快捷方式）
-- `ClinkWeChat-2.0.0-Portable-x64.exe`：Windows 绿色便携单文件版（双击即用、免安装）
+- `客服在线平台-2.1.0-Setup-x64.exe`：Windows 安装向导版（支持自定义目录与桌面/开始菜单快捷方式）
+- `客服在线平台-2.1.0-Portable-x64.exe`：Windows 绿色便携单文件版（双击即用、免安装）
 - `SHA256SUMS.txt`：安装包 SHA-256 完整性校验值

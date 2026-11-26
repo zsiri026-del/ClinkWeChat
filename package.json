@@ -1,8 +1,8 @@
 {
   "name": "clink-wechat",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "private": true,
-  "description": "渐变美学风格桌面客户端：内嵌 Clink 客户联络中心在线客服工作台（低内存防泄漏重构版）",
+  "description": "客服在线平台：渐变美学风格在线客服桌面客户端（低内存防泄漏重构版）",
   "main": "src/main/index.js",
   "author": "zsiri026-del",
   "license": "MIT",
@@ -13,7 +13,7 @@
     "test": "node --test tests/*.test.mjs",
     "build": "electron-builder --win",
     "note": "node scripts/changelog-add.mjs",
-    "icon": "python scripts/make_icon.py",
+    "icon": "electron scripts/render-icon.js",
     "badge": "python scripts/make-badge.py"
   },
   "devDependencies": {
@@ -22,7 +22,7 @@
   },
   "build": {
     "appId": "com.local.clinkwechat",
-    "productName": "ClinkWeChat",
+    "productName": "客服在线平台",
     "directories": {
       "output": "dist"
     },
@@ -61,11 +61,11 @@
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "shortcutName": "ClinkWeChat 客服工作台",
-      "artifactName": "ClinkWeChat-${version}-Setup-x64.${ext}"
+      "shortcutName": "客服在线平台",
+      "artifactName": "客服在线平台-${version}-Setup-x64.${ext}"
     },
     "portable": {
-      "artifactName": "ClinkWeChat-${version}-Portable-x64.${ext}"
+      "artifactName": "客服在线平台-${version}-Portable-x64.${ext}"
     }
   }
 }

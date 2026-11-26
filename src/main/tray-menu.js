@@ -9,7 +9,7 @@ function buildTrayMenu({ showFn, refreshFn }) {
   return {
     onTop,
     menu: Menu.buildFromTemplate([
-      { label: '打开客服工作台', click: () => showFn() },
+      { label: '打开客服在线平台', click: () => showFn() },
       {
         label: '窗口置顶',
         type: 'checkbox',

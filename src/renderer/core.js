@@ -47,7 +47,7 @@
       Shell.lastPageTitle = clean || '在线客服工作台';
       const el = $('pageTitle');
       if (el && !el.classList.contains('toast')) el.textContent = Shell.lastPageTitle;
-      document.title = (clean ? clean + ' · ' : '') + '客户联络中心';
+      document.title = (clean ? clean + ' · ' : '') + '客服在线平台';
     },
   };
 

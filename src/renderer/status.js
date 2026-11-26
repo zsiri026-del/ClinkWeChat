@@ -33,7 +33,7 @@
     window.app.siteState().then((s) => s && applyStatus(s)).catch(() => {});
 
     onCleanup(window.app.onTitle((title) => {
-      const clean = (title || '').replace(/客户联络中心|Clink/gi, '').trim();
+      const clean = (title || '').replace(/客户联络中心|客服在线平台|Clink/gi, '').trim();
       setPageTitle(clean);
     }));
 

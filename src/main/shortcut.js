@@ -7,7 +7,7 @@ const { ROOT, APP_ID, assetPath } = require('./config');
 
 function installDesktopShortcut() {
   const desktop = path.join(app.getPath('home'), 'Desktop');
-  const lnk = path.join(desktop, 'ClinkWeChat 客服工作台.lnk');
+  const lnk = path.join(desktop, '客服在线平台.lnk');
   try {
     fs.rmSync(lnk, { force: true });
   } catch {
@@ -17,7 +17,7 @@ function installDesktopShortcut() {
     target: process.execPath,
     cwd: app.isPackaged ? path.dirname(process.execPath) : ROOT,
     args: app.isPackaged ? '' : `"${ROOT}"`,
-    description: '渐变风格在线客服工作台 - 客户联络中心',
+    description: '客服在线平台 · 渐变美学在线客服桌面客户端',
     icon: assetPath('icon-v2.ico'),
     iconIndex: 0,
     appUserModelId: APP_ID,

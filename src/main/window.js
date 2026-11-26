@@ -27,7 +27,7 @@ function createWindow() {
     frame: false,
     show: false,
     backgroundColor: '#0f172a',
-    title: '客户联络中心',
+    title: '客服在线平台',
     icon: assetPath('icon-v2.ico'),
     webPreferences: {
       preload: path.join(__dirname, '..', 'preload.js'),
