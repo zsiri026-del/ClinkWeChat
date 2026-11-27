@@ -34,6 +34,21 @@ function guessFileName(url, mime) {
   return /\.[a-z0-9]{2,5}$/i.test(name) ? name : `${name}.${extOf(mime)}`;
 }
 
+async function readStreamLimited(body, maxBytes, onAbort) {
+  const chunks = [];
+  let total = 0;
+  for await (const raw of body) {
+    const chunk = Buffer.isBuffer(raw) ? raw : Buffer.from(raw);
+    total += chunk.length;
+    if (total > maxBytes) {
+      if (typeof onAbort === 'function') onAbort();
+      throw new Error('图片体积超过 50MB 上限');
+    }
+    chunks.push(chunk);
+  }
+  return Buffer.concat(chunks, total);
+}
+
 async function fetchBytes(url) {
   const headers = {};
   if (ctx.view && !ctx.view.webContents.isDestroyed()) {
@@ -42,14 +57,16 @@ async function fetchBytes(url) {
     headers['User-Agent'] = ctx.view.webContents.getUserAgent();
   }
   const ac = new AbortController();
-  const timer = setTimeout(() => ac.abort(), 30000);
+  const timer = setTimeout(() => ac.abort(new Error('图片下载超时')), 30000);
   try {
     const res = await session.fromPartition(PARTITION).fetch(url, { headers, signal: ac.signal });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const len = Number(res.headers.get('content-length') || 0);
     if (len > MAX_IMG_BYTES) throw new Error('图片体积超过 50MB 上限');
     const mime = String(res.headers.get('content-type') || '').split(';')[0].trim();
-    const buf = Buffer.from(await res.arrayBuffer());
+    const buf = res.body
+      ? await readStreamLimited(res.body, MAX_IMG_BYTES, () => ac.abort())
+      : Buffer.from(await res.arrayBuffer());
     if (buf.length > MAX_IMG_BYTES) throw new Error('图片体积超过 50MB 上限');
     return { buf, mime };
   } finally {
@@ -57,4 +74,4 @@ async function fetchBytes(url) {
   }
 }
 
-module.exports = { extOf, stamp, guessFileName, fetchBytes };
+module.exports = { MAX_IMG_BYTES, extOf, stamp, guessFileName, readStreamLimited, fetchBytes };

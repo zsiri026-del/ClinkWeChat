@@ -9,6 +9,7 @@ const GUARD_INTERVAL_MS = 15 * 60 * 1000;
 const HIDDEN_TRIM_MS = 5 * 60 * 1000;
 const AUTO_TRIM_MB = 450;
 let guardTimer = null;
+let inFlightOptimize = null;
 
 function applyChromiumFlags() {
   app.commandLine.appendSwitch('disk-cache-size', String(100 * 1024 * 1024));
@@ -38,34 +39,60 @@ function getMemoryStats() {
   };
 }
 
-async function optimizeMemory(reason = 'manual') {
+async function runOptimizeOnce(reason) {
   const before = getMemoryStats();
-  try {
-    const sess = session.fromPartition(PARTITION);
-    await sess.clearCache();
-    if (typeof sess.clearCodeCaches === 'function') {
-      await sess.clearCodeCaches({});
+  const errors = [];
+  let succeeded = 0;
+
+  const tryStep = async (label, fn) => {
+    try {
+      await fn();
+      succeeded += 1;
+    } catch (err) {
+      errors.push(`${label}: ${String((err && err.message) || err)}`);
     }
-    if (typeof sess.clearHostResolverCache === 'function') {
-      await sess.clearHostResolverCache();
-    }
-  } catch {
-    /* ignore */
+  };
+
+  const sess = session.fromPartition(PARTITION);
+  await tryStep('clearCache', () => sess.clearCache());
+  if (typeof sess.clearCodeCaches === 'function') {
+    await tryStep('clearCodeCaches', () => sess.clearCodeCaches({}));
   }
-  try {
-    if (ctx.view && !ctx.view.webContents.isDestroyed()) {
+  if (typeof sess.clearHostResolverCache === 'function') {
+    await tryStep('clearHostResolverCache', () => sess.clearHostResolverCache());
+  }
+  if (ctx.view && !ctx.view.webContents.isDestroyed()) {
+    await tryStep('navigationHistory', () => {
       const nav = ctx.view.webContents.navigationHistory;
       if (nav && typeof nav.length === 'function' && nav.length() > 30) nav.clear();
-    }
-  } catch {
-    /* ignore */
+    });
   }
+
   const after = getMemoryStats();
   const freedMB = Math.max(0, before.totalMB - after.totalMB);
-  dbg(`mem-opt:${reason} ${before.totalMB}MB->${after.totalMB}MB`);
-  const result = { reason, beforeMB: before.totalMB, afterMB: after.totalMB, freedMB, stats: after };
+  const ok = errors.length === 0;
+  const partial = errors.length > 0 && succeeded > 0;
+  dbg(`mem-opt:${reason} ok=${ok} ${before.totalMB}MB->${after.totalMB}MB`);
+  const result = {
+    ok,
+    partial,
+    errors,
+    reason,
+    beforeMB: before.totalMB,
+    afterMB: after.totalMB,
+    freedMB,
+    stats: after,
+  };
   send('app:memory-optimized', result);
   return result;
+}
+
+function optimizeMemory(reason = 'manual') {
+  if (inFlightOptimize) return inFlightOptimize;
+  inFlightOptimize = runOptimizeOnce(reason).finally(() => {
+    inFlightOptimize = null;
+  });
+  return inFlightOptimize;
 }
 
 function startMemoryGuard() {

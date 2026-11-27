@@ -9,16 +9,22 @@ def read_png(path):
     assert data[:8] == b"\x89PNG\r\n\x1a\n"
     pos = 8
     idat = b""
-    w = h = bit = ctype = None
+    w = h = bit = ctype = comp = filt = interlace = None
     while pos < len(data):
         length = struct.unpack(">I", data[pos:pos + 4])[0]
         tag = data[pos + 4:pos + 8]
         chunk = data[pos + 8:pos + 8 + length]
         if tag == b"IHDR":
-            w, h, bit, ctype = struct.unpack(">IIBB", chunk[:10])
+            if len(chunk) < 13:
+                raise ValueError("Invalid IHDR chunk")
+            w, h, bit, ctype, comp, filt, interlace = struct.unpack(">IIBBBBB", chunk[:13])
         elif tag == b"IDAT":
             idat += chunk
         pos += 12 + length
+    if interlace != 0:
+        raise ValueError(f"Unsupported interlaced PNG (interlace={interlace})")
+    if comp != 0 or filt != 0:
+        raise ValueError(f"Unsupported PNG compression/filter ({comp}, {filt})")
     assert bit == 8 and ctype in (2, 6), (bit, ctype)
     ch = 4 if ctype == 6 else 3
     raw = zlib.decompress(idat)

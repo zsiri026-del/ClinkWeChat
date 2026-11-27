@@ -23,6 +23,9 @@
     document.addEventListener('keydown', onKey);
     onCleanup(() => document.removeEventListener('keydown', onKey));
     window.addEventListener('beforeunload', disposeAll, { once: true });
+    if (window.app && typeof window.app.rendererReady === 'function') {
+      window.app.rendererReady();
+    }
   }
 
   if (document.readyState === 'loading') {

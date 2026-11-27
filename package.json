@@ -1,6 +1,6 @@
 {
   "name": "clink-wechat",
-  "version": "2.2.0",
+  "version": "2.2.1",
   "private": true,
   "description": "客服在线平台：渐变美学风格在线客服桌面客户端（低内存防泄漏 + 后台热更新版）",
   "main": "src/main/boot.js",

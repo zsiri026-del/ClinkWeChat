@@ -22,6 +22,7 @@ window.addEventListener('unload', () => {
 });
 
 contextBridge.exposeInMainWorld('app', {
+  rendererReady: () => ipcRenderer.send('app:renderer-ready'),
   window: (action) => ipcRenderer.send('app:window', action),
   setOverlay: (open) => ipcRenderer.send('app:overlay', !!open),
   zoom: (delta) => ipcRenderer.send('app:zoom', delta),

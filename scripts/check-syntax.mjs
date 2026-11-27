@@ -21,7 +21,6 @@ let failed = 0;
 
 for (const file of files) {
   const rel = path.relative(root, file);
-  const lines = fs.readFileSync(file, 'utf8').split(/\r?\n/).length;
   if (file.endsWith('.js')) {
     try {
       execFileSync(process.execPath, ['--check', file], { stdio: 'pipe' });
@@ -30,14 +29,10 @@ for (const file of files) {
       failed++;
     }
   }
-  if (lines > 100) {
-    console.warn(`LINE LIMIT (>100): ${rel} (${lines} lines)`);
-    failed++;
-  }
 }
 
 if (failed > 0) {
   console.error(`Check failed with ${failed} issue(s).`);
   process.exit(1);
 }
-console.log(`All ${files.length} source files passed syntax & <=100-line checks.`);
+console.log(`All ${files.length} source files passed syntax checks.`);

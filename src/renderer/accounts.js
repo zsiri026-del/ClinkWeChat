@@ -4,6 +4,7 @@
   const Shell = window.Shell;
   const { $, onCleanup } = Shell;
   let closeTimer = null;
+  let modalGen = 0;
 
   function tip(msg, cls) {
     const el = $('accTip');
@@ -11,18 +12,40 @@
     el.className = 'acc-tip' + (cls ? ' ' + cls : '');
   }
 
-  function closeLogin() { $('loginModal').classList.add('hidden'); Shell.syncOverlay(); }
+  function clearPendingClose() {
+    if (closeTimer) {
+      clearTimeout(closeTimer);
+      closeTimer = null;
+    }
+  }
+
+  function closeLogin() {
+    modalGen += 1;
+    clearPendingClose();
+    $('loginModal').classList.add('hidden');
+    Shell.syncOverlay();
+  }
 
   async function doLogin(id) {
+    const gen = modalGen;
+    clearPendingClose();
     tip('正在定位登录框并填充…');
     let r = null;
     try { r = await window.app.accounts.login(id); } catch (err) { r = { ok: false, reason: String(err) }; }
+    if (gen !== modalGen) return;
     if (r && r.ok) {
       tip('已填入账号密码，拖动滑块验证后点「登录系统」', 'ok');
-      clearTimeout(closeTimer);
-      closeTimer = setTimeout(closeLogin, 1100);
+      closeTimer = setTimeout(() => {
+        if (gen === modalGen) closeLogin();
+      }, 1100);
     } else {
-      const map = { 'no-password': '未找到密码框，请等登录页加载完成后再试', 'not-found': '账号记录不存在', 'no-view': '工作台页面未就绪' };
+      const map = {
+        'no-password': '未找到密码框，请等登录页加载完成后再试',
+        'no-login-form': '当前页面不是完整登录表单，已拒绝自动填充',
+        'untrusted-origin': '当前页面非受信任的 HTTPS 客服域名，已阻止填充',
+        'not-found': '账号记录不存在',
+        'no-view': '工作台页面未就绪',
+      };
       tip(map[r && r.reason] || '填充失败：' + ((r && r.reason) || '未知错误'), 'err');
     }
   }
@@ -37,12 +60,20 @@
     const saved = await window.app.accounts.save({ label, cno, account, pwd });
     $('accPwd').value = '';
     await Shell.renderAccountList();
-    if (!saved || !saved.ok) return tip('保存失败', 'err');
+    if (!saved || !saved.ok) {
+      const msg = (saved && saved.error) || (saved && saved.reason === 'crypto-unavailable'
+        ? '系统安全加密不可用，已拒绝明文保存密码'
+        : '保存失败，请检查本机写入权限');
+      return tip(msg, 'err');
+    }
     tip('已加密保存到本机', 'ok');
     if (withLogin) doLogin(saved.id);
   }
 
   function openLogin() {
+    modalGen += 1;
+    clearPendingClose();
+    const gen = modalGen;
     $('popup').classList.add('hidden');
     $('loginModal').classList.remove('hidden');
     Shell.syncOverlay();
@@ -50,7 +81,11 @@
     Shell.renderAccountList();
     $('accUser').focus();
     window.app.accounts.list().then((list) => {
-      const first = list && list[0];
+      if (gen !== modalGen || !Array.isArray(list)) return;
+      if (list.some((item) => item && item.unencrypted)) {
+        tip('检测到历史未加密记录，系统安全存储恢复后请重新保存以完成加密迁移。', 'err');
+      }
+      const first = list[0];
       if (!first) return;
       if (!$('accCno').value) $('accCno').value = first.cno || '';
       if (!$('accUser').value) $('accUser').value = first.account || '';
@@ -64,8 +99,12 @@
       const del = e.target.closest('[data-del-id]');
       if (del) {
         e.stopPropagation();
-        await window.app.accounts.remove(del.dataset.delId);
+        const res = await window.app.accounts.remove(del.dataset.delId).catch(() => null);
         await Shell.renderAccountList();
+        if (!res || !res.ok) {
+          tip((res && res.error) || '删除失败，未能写入本机账号文件', 'err');
+          return;
+        }
         tip('已删除账号', 'ok');
         return;
       }
@@ -87,7 +126,8 @@
     pwdEl.addEventListener('keydown', onEnter);
 
     onCleanup(() => {
-      clearTimeout(closeTimer);
+      modalGen += 1;
+      clearPendingClose();
       listEl.removeEventListener('click', onListClick);
       pwdEl.removeEventListener('keydown', onEnter);
     });

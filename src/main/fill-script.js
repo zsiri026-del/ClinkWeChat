@@ -57,6 +57,7 @@ function buildFillScript(cno, account, password, force) {
       if(!cnoEl && texts.length>=2 && userEl) cnoEl = texts.filter(function(x){ return x!==userEl; })[0] || null;
     }
     if(userEl===cnoEl) userEl=null;
+    if(!userEl && !cnoEl) return {ok:false, reason:'no-login-form'};
 
     var filled={cno:false, user:false, pwd:false};
     if(cnoEl && C) filled.cno = setVal(cnoEl, C);

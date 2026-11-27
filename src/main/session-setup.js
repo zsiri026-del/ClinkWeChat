@@ -2,7 +2,8 @@
 
 const { app, session } = require('electron');
 const path = require('node:path');
-const { PARTITION, dbg } = require('./config');
+const { PARTITION, isTrusted, dbg } = require('./config');
+const { ctx } = require('./state');
 const { notifySaved } = require('./image-save');
 
 const ALLOW_REQ = new Set([
@@ -19,8 +20,24 @@ const ALLOW_CHECK = new Set([
   'videoCapture',
   'clipboard-sanitized-write',
 ]);
+const ALLOWED_MEDIA_TYPES = new Set(['audio', 'video']);
 
 let initialized = false;
+
+function isTrustedPermissionSource(wc, originOrUrl, details) {
+  if (!ctx.view || ctx.view.webContents.isDestroyed()) return false;
+  if (wc && wc !== ctx.view.webContents) return false;
+  const candidate =
+    (details && details.requestingUrl) ||
+    originOrUrl ||
+    (wc && !wc.isDestroyed() ? wc.getURL() : '');
+  return isTrusted(candidate);
+}
+
+function isAllowedMediaDetails(permission, details) {
+  if (permission !== 'media' || !details || !Array.isArray(details.mediaTypes)) return true;
+  return details.mediaTypes.length > 0 && details.mediaTypes.every((t) => ALLOWED_MEDIA_TYPES.has(t));
+}
 
 function initSiteSession() {
   if (initialized) return session.fromPartition(PARTITION);
@@ -28,12 +45,20 @@ function initSiteSession() {
 
   const viewSession = session.fromPartition(PARTITION);
 
-  viewSession.setPermissionRequestHandler((_wc, permission, callback) => {
-    callback(ALLOW_REQ.has(permission));
+  viewSession.setPermissionRequestHandler((wc, permission, callback, details) => {
+    const ok =
+      ALLOW_REQ.has(permission) &&
+      isTrustedPermissionSource(wc, '', details) &&
+      isAllowedMediaDetails(permission, details);
+    callback(ok);
   });
 
-  viewSession.setPermissionCheckHandler((_wc, permission) => {
-    return ALLOW_CHECK.has(permission);
+  viewSession.setPermissionCheckHandler((wc, permission, requestingOrigin, details) => {
+    return (
+      ALLOW_CHECK.has(permission) &&
+      isTrustedPermissionSource(wc, requestingOrigin, details) &&
+      isAllowedMediaDetails(permission, details)
+    );
   });
 
   viewSession.on('will-download', (_event, item) => {
@@ -67,4 +92,4 @@ function initSiteSession() {
   return viewSession;
 }
 
-module.exports = { initSiteSession };
+module.exports = { initSiteSession, isTrustedPermissionSource, isAllowedMediaDetails };

@@ -42,9 +42,17 @@
     try {
       const r = await window.app.memoryOptimize();
       if (r && r.stats) renderMem(r.stats);
-      const msg = r && r.freedMB > 0
+      if (!r || (!r.ok && !r.partial)) {
+        flashToast('内存清理失败，请稍后重试', 3500);
+        return;
+      }
+      if (r.partial) {
+        flashToast(`部分缓存已清理（当前 ${r.afterMB} MB），仍有少量清理失败`, 4500);
+        return;
+      }
+      const msg = r.freedMB > 0
         ? `缓存已清理，释放约 ${r.freedMB} MB（当前 ${r.afterMB} MB）`
-        : `缓存已清理，内存保持轻量（${(r && r.afterMB) || '--'} MB）`;
+        : `缓存已清理，内存保持轻量（${r.afterMB || '--'} MB）`;
       flashToast(msg, 4500);
     } catch {
       flashToast('内存清理失败', 3000);

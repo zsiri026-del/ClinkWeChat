@@ -1,7 +1,8 @@
 'use strict';
 
-const { Menu, MenuItem, clipboard, shell } = require('electron');
+const { Menu, MenuItem, clipboard } = require('electron');
 const { isTrusted } = require('./config');
+const { isSafeExternalUrl, openSafeExternal } = require('./security');
 const { ctx } = require('./state');
 const { guessFileName, saveImageFromUrl } = require('./image-save');
 
@@ -47,16 +48,18 @@ async function showContextMenu(wc, params) {
     menu.append(new MenuItem({ label: '复制图片地址', click: () => clipboard.writeText(imgUrl) }));
     menu.append(new MenuItem({
       label: '在浏览器中打开图片',
-      enabled: /^https?:/i.test(imgUrl),
-      click: () => { if (/^https?:/i.test(imgUrl)) shell.openExternal(imgUrl); },
+      enabled: isSafeExternalUrl(imgUrl),
+      click: () => openSafeExternal(imgUrl),
     }));
     menu.append(new MenuItem({ type: 'separator' }));
   }
 
   if (params.linkURL) {
+    const canOpen = isTrusted(params.linkURL) || isSafeExternalUrl(params.linkURL);
     menu.append(new MenuItem({
       label: '打开链接',
-      click: () => (isTrusted(params.linkURL) ? wc.loadURL(params.linkURL) : shell.openExternal(params.linkURL)),
+      enabled: canOpen,
+      click: () => (isTrusted(params.linkURL) ? wc.loadURL(params.linkURL) : openSafeExternal(params.linkURL)),
     }));
     menu.append(new MenuItem({ label: '复制链接地址', click: () => clipboard.writeText(params.linkURL) }));
     menu.append(new MenuItem({ type: 'separator' }));

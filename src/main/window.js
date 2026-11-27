@@ -1,6 +1,6 @@
 'use strict';
 
-const { app, BrowserWindow, screen } = require('electron');
+const { BrowserWindow, screen } = require('electron');
 const path = require('node:path');
 const { assetPath, ROOT, TARGET_URL } = require('./config');
 const { ctx, send, setTrackedTimeout, clearTrackedTimeout } = require('./state');
@@ -8,10 +8,9 @@ const { settings, readWindowState, saveWindowState } = require('./store');
 const { sanitizeBounds } = require('./bounds');
 const { clearAttention } = require('./attention');
 const { createSiteView, layoutView, scheduleLayoutView, destroySiteView } = require('./view');
-const { createTray, hideToTray, refreshTrayMenu } = require('./tray');
+const { createTray, hasTray, hideToTray, refreshTrayMenu } = require('./tray');
 const { runDiagIfNeeded } = require('./diag');
 const { readPkgVersion } = require('./semver');
-const { confirmBootSuccess } = require('./boot-meta');
 
 function createWindow() {
   const saved = sanitizeBounds(readWindowState());
@@ -46,7 +45,6 @@ function createWindow() {
   const view = createSiteView(win);
 
   win.webContents.once('did-finish-load', () => {
-    confirmBootSuccess();
     send('host-info', { version: readPkgVersion(ROOT), target: TARGET_URL });
     if (view && !view.webContents.isDestroyed()) view.webContents.loadURL(TARGET_URL);
   });
@@ -74,7 +72,7 @@ function createWindow() {
   win.on('leave-full-screen', layoutView);
 
   win.on('close', (event) => {
-    if (!ctx.quitting && settings.closeToTray) {
+    if (!ctx.quitting && settings.closeToTray && hasTray()) {
       event.preventDefault();
       hideToTray();
       return;

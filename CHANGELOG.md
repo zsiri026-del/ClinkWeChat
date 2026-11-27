@@ -1,5 +1,33 @@
 # 变更记录
 
+## 2.2.1 — 2026-11-27
+
+### [2026-11-27 19:15:00] fix: 全面安全加固与热更新稳定性修复（修复 Codex 全量审查 21 项问题）
+
+- 变更：
+  1. **高危安全底线加固**：
+     - 更新链路引入 Ed25519 发布清单公钥验签（`src/main/update-verify.js`、`scripts/make-hot-patch.mjs`）、GitHub Releases HTTPS 来源白名单、强制 64 位 SHA-256 校验与安装包启动前二次核验；
+     - 自动填充严格限制为受信任 HTTPS 域名逐帧校验与完整登录表单特征，拦截 `will-redirect` 外部跳转；
+     - 远端视图摄像头/麦克风权限申请与检查均绑定受信 HTTPS 来源与媒体类型；
+     - 密码加密（`src/main/crypto.js`）取消静默降级明文 Base64，加密不可用时明确拒绝保存并支持历史记录自动迁移；
+     - 集中校验高权限 IPC 发送方为主窗口本地壳主框架、站点 IPC 为受信帧来源，统一限制 `shell.openExternal` 为安全协议白名单（`https:`/`http:`/`mailto:`）。
+  2. **热更新、并发与数据落盘可靠性**：
+     - 热补丁改为下载暂存至唯一不可变目录，点击重启生效时才原子切换 `active.json` 并保留 `previous` 上一版本；支持清单版本/补丁版本/包内 `package.json` 三方一致校验、解压 32MB 防炸弹上限及全量包自动回退；
+     - 引导器单实例锁前置（避免第二实例消耗试运行次数）并改为渲染进程版本绑定握手确认启动；
+     - 全链路下载超时与流式体积上限、安装包 `stream.pipeline` 背压写盘；
+     - 会话 Cookie 仅限受信域且保留 `hostOnly` 属性，与清除登录态共用串行队列消除竞态；
+     - 自动填充与弹窗引入任务代次防覆盖、多企业账号改 `(cno, account)` 复合键与登录后确认落盘；
+     - 图片另存为补齐网络流式 / `data:` / `blob:` 50MB 上限；账号与设置写盘失败不提交内存缓存并真实提示；托盘不可用时点关闭不再隐藏窗口失联。
+  3. **体验与工具脚本收尾**：
+     - 分离已就绪更新与后台检查状态，网络波动不再隐藏更新入口，合法新清单支持撤回/换摘要刷新；
+     - 内存清理主进程合并并发请求并透传真实成功/部分失败状态；
+     - 修复 `scripts/changelog-add.mjs` 兼容 CRLF 与缺失「未发布」区块，修复 `scripts/png_tool.py` 拒绝 Adam7 交错图，移除 `scripts/check-syntax.mjs` 旧 100 行硬限制。
+- 原因：落实 Codex 深度静态安全审查检出的全部 21 项问题及回归复审发现，消除安全隐患与并发竞态并推送热更新。
+- 文件：`src/main/*`、`src/preload.js`、`src/renderer/*`、`scripts/make-hot-patch.mjs`、`scripts/check-syntax.mjs`、`scripts/changelog-add.mjs`、`scripts/png_tool.py`、`tests/core.test.mjs`、`tests/updater.test.mjs`、`package.json`、`CHANGELOG.md`
+- 验证：`npm run check`（59 个源码文件通过）、`npm test`（8/8 通过）、Codex 回归复审修复闭环、`npm run patch` 签名验证通过。
+
+---
+
 ## 2.2.0 — 2026-11-26
 
 ### [2026-11-26 17:55:00] feat: 新增后台自动推送与秒级热更新系统（含防崩溃回滚与流式全量兜底）

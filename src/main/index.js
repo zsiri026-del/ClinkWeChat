@@ -32,10 +32,11 @@ if (process.argv.includes('--install-shortcut')) {
     app.exit(ok ? 0 : 1);
   });
 } else {
-  const gotLock = app.requestSingleInstanceLock();
+  const gotLock = global.__clinkGotLock || app.requestSingleInstanceLock();
   if (!gotLock) {
     app.quit();
   } else {
+    global.__clinkGotLock = true;
     app.on('second-instance', () => showMainWindow(createWindow));
 
     app.whenReady().then(() => {

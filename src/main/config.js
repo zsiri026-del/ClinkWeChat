@@ -37,7 +37,9 @@ function assetPath(name) {
 
 function isTrusted(url) {
   try {
-    const host = new URL(url).hostname;
+    const u = new URL(url);
+    if (u.protocol !== 'https:') return false;
+    const host = u.hostname.toLowerCase();
     return TRUSTED_HOSTS.some((h) => host === h || host.endsWith('.' + h));
   } catch {
     return false;

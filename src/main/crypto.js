@@ -2,15 +2,27 @@
 
 const { safeStorage } = require('electron');
 
-function encSecret(plain) {
+function isEncryptionAvailable() {
   try {
-    if (safeStorage.isEncryptionAvailable()) {
-      return { enc: true, v: safeStorage.encryptString(plain).toString('base64') };
-    }
+    return Boolean(safeStorage && safeStorage.isEncryptionAvailable());
   } catch {
-    /* fallback */
+    return false;
   }
-  return { enc: false, v: Buffer.from(plain, 'utf8').toString('base64') };
+}
+
+function encSecret(plain) {
+  if (!isEncryptionAvailable()) {
+    throw new Error('系统安全加密不可用，已拒绝明文保存密码');
+  }
+  try {
+    return { enc: true, v: safeStorage.encryptString(String(plain)).toString('base64') };
+  } catch (err) {
+    throw new Error('密码加密失败：' + String((err && err.message) || err));
+  }
+}
+
+function isLegacyPlain(obj) {
+  return Boolean(obj && obj.enc === false && typeof obj.v === 'string' && obj.v.length > 0);
 }
 
 function decSecret(obj) {
@@ -23,4 +35,4 @@ function decSecret(obj) {
   }
 }
 
-module.exports = { encSecret, decSecret };
+module.exports = { isEncryptionAvailable, encSecret, isLegacyPlain, decSecret };

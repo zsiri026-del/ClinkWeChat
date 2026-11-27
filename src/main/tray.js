@@ -9,6 +9,10 @@ const { buildTrayMenu } = require('./tray-menu');
 
 let lastTrayTopState = null;
 
+function hasTray() {
+  return Boolean(ctx.tray && (typeof ctx.tray.isDestroyed !== 'function' || !ctx.tray.isDestroyed()));
+}
+
 function buildTrayIcon() {
   try {
     const img = nativeImage.createFromPath(assetPath('icon-v2.png'));
@@ -33,7 +37,12 @@ function showMainWindow(createWinFn) {
 }
 
 function hideToTray() {
-  if (!ctx.win || ctx.win.isDestroyed()) return;
+  if (!ctx.win || ctx.win.isDestroyed()) return false;
+  if (!hasTray()) {
+    ctx.win.minimize();
+    dbg('hide-to-tray-fallback-minimize');
+    return false;
+  }
   const b = ctx.win.getNormalBounds ? ctx.win.getNormalBounds() : ctx.win.getBounds();
   saveWindowState(b);
   ctx.hiddenAt = Date.now();
@@ -52,10 +61,11 @@ function hideToTray() {
       /* ignore */
     }
   }
+  return true;
 }
 
 function refreshTrayMenu(createWinFn, force = false) {
-  if (!ctx.tray) return;
+  if (!hasTray()) return;
   const onTop = !!(ctx.win && !ctx.win.isDestroyed() && ctx.win.isAlwaysOnTop());
   if (!force && onTop === lastTrayTopState) return;
   try {
@@ -71,7 +81,7 @@ function refreshTrayMenu(createWinFn, force = false) {
 }
 
 function createTray(createWinFn) {
-  if (ctx.tray) return;
+  if (hasTray()) return;
   try {
     ctx.tray = new Tray(buildTrayIcon());
   } catch (err) {
@@ -93,4 +103,4 @@ function destroyTray() {
   lastTrayTopState = null;
 }
 
-module.exports = { createTray, destroyTray, refreshTrayMenu, hideToTray, showMainWindow };
+module.exports = { hasTray, createTray, destroyTray, refreshTrayMenu, hideToTray, showMainWindow };

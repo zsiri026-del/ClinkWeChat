@@ -3,38 +3,63 @@
 const { app } = require('electron');
 const path = require('node:path');
 const fs = require('node:fs');
-const { encSecret, decSecret } = require('./crypto');
+const { isEncryptionAvailable, encSecret, isLegacyPlain, decSecret } = require('./crypto');
 
 let cache = null;
 
 const accPath = () => path.join(app.getPath('userData'), 'accounts.json');
 
+function persistList(list) {
+  const file = accPath();
+  const tmp = `${file}.${process.pid}.${Date.now()}.tmp`;
+  try {
+    fs.mkdirSync(path.dirname(file), { recursive: true });
+    fs.writeFileSync(tmp, JSON.stringify(list, null, 2));
+    fs.renameSync(tmp, file);
+    return true;
+  } catch {
+    try { fs.rmSync(tmp, { force: true }); } catch {}
+    return false;
+  }
+}
+
+function migrateLegacyRecords(list) {
+  if (!isEncryptionAvailable()) return list;
+  let changed = false;
+  const next = list.map((item) => {
+    if (!item || !isLegacyPlain(item.secret)) return item;
+    const plain = decSecret(item.secret);
+    if (!plain) return item;
+    try {
+      changed = true;
+      return { ...item, secret: encSecret(plain) };
+    } catch {
+      return item;
+    }
+  });
+  if (changed && persistList(next)) return next;
+  return list;
+}
+
 function loadAccounts() {
   if (cache !== null) return cache;
   try {
     const raw = JSON.parse(fs.readFileSync(accPath(), 'utf8'));
-    cache = Array.isArray(raw) ? raw : [];
+    cache = migrateLegacyRecords(Array.isArray(raw) ? raw : []);
   } catch {
     cache = [];
   }
   return cache;
 }
 
-function persistAccounts() {
-  if (!cache) return;
-  try {
-    const file = accPath();
-    fs.mkdirSync(path.dirname(file), { recursive: true });
-    const tmp = file + '.tmp';
-    fs.writeFileSync(tmp, JSON.stringify(cache, null, 2));
-    fs.renameSync(tmp, file);
-  } catch {
-    /* ignore */
-  }
-}
-
 function toPublic(a) {
-  return { id: a.id, label: a.label || '', cno: a.cno || '', account: a.account || '' };
+  return {
+    id: a.id,
+    label: a.label || '',
+    cno: a.cno || '',
+    account: a.account || '',
+    unencrypted: isLegacyPlain(a.secret),
+  };
 }
 
 function listAccounts() {
@@ -48,9 +73,20 @@ function upsertAccount({ id, label, cno, account, pwd }) {
   const cleanPwd = String(pwd || '');
   if (!cleanAcc) return { ok: false, reason: 'empty-account' };
 
+  let secret = null;
+  if (cleanPwd) {
+    try {
+      secret = encSecret(cleanPwd);
+    } catch (err) {
+      return { ok: false, reason: 'crypto-unavailable', error: String((err && err.message) || err) };
+    }
+  }
+
   const list = loadAccounts();
-  const secret = cleanPwd ? encSecret(cleanPwd) : null;
-  let rec = id ? list.find((a) => a.id === id) : list.find((a) => a.account === cleanAcc);
+  const nextList = list.map((item) => ({ ...item }));
+  let rec = id
+    ? nextList.find((a) => a.id === id)
+    : nextList.find((a) => a.account === cleanAcc && String(a.cno || '').trim() === cleanCno);
 
   if (rec) {
     rec.account = cleanAcc;
@@ -58,22 +94,30 @@ function upsertAccount({ id, label, cno, account, pwd }) {
     if (cleanLabel) rec.label = cleanLabel;
     if (secret) rec.secret = secret;
   } else {
+    if (!secret) return { ok: false, reason: 'empty-password' };
     rec = {
       id: `a${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`,
       label: cleanLabel || cleanAcc,
       cno: cleanCno,
       account: cleanAcc,
-      secret: secret || { enc: false, v: '' },
+      secret,
     };
-    list.push(rec);
+    nextList.push(rec);
   }
-  persistAccounts();
+
+  if (!persistList(nextList)) {
+    return { ok: false, reason: 'persist-failed', error: '账号文件写入失败，未保存修改' };
+  }
+  cache = nextList;
   return { ok: true, ...toPublic(rec) };
 }
 
 function removeAccount(id) {
-  cache = loadAccounts().filter((a) => a.id !== id);
-  persistAccounts();
+  const nextList = loadAccounts().filter((a) => a.id !== id);
+  if (!persistList(nextList)) {
+    return { ok: false, reason: 'persist-failed', error: '账号文件写入失败，未删除账号' };
+  }
+  cache = nextList;
   return { ok: true };
 }
 
@@ -86,6 +130,10 @@ function getLastAccount(lastId) {
   return (lastId && list.find((a) => a.id === lastId)) || list[0] || null;
 }
 
+function resetAccountCache() {
+  cache = null;
+}
+
 module.exports = {
   loadAccounts,
   listAccounts,
@@ -94,4 +142,5 @@ module.exports = {
   getAccountById,
   getLastAccount,
   decSecret,
+  resetAccountCache,
 };

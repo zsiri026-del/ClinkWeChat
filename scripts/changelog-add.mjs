@@ -1,16 +1,6 @@
 #!/usr/bin/env node
 /**
  * 往 CHANGELOG.md 的「未发布」区插入一条带时间戳的改动记录。
- *
- * 用法：
- *   node scripts/changelog-add.mjs "fix: 状态灯不刷新" \
- *     --change "就绪判定改为 did-stop-loading" \
- *     --why "SPA 跳转会覆盖就绪状态" \
- *     --file "src/main.js" \
- *     --verify "截图确认绿灯"
- *
- * 也可只用一句话：node scripts/changelog-add.mjs "docs: 更新说明"
- * 时间戳取本机当前时间（精确到秒），插入到「未发布」区最上方。
  */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -48,14 +38,19 @@ lines.push(`- 原因：${why || '（待补充）'}`);
 if (file) lines.push(`- 文件：${file}`);
 lines.push(`- 验证：${verify || '未验证'}`);
 
-const entry = lines.join('\n');
+const text = fs.readFileSync(FILE, 'utf8');
+const eol = text.includes('\r\n') ? '\r\n' : '\n';
+const entry = lines.join(eol);
+const anchorRe = /^## 未发布\r?\n/m;
 
-let text = fs.readFileSync(FILE, 'utf8');
-const anchor = '## 未发布\n';
-if (!text.includes(anchor)) {
-  console.error('CHANGELOG.md 里找不到「## 未发布」区，请先手动补上。');
-  process.exit(1);
+let nextText;
+if (anchorRe.test(text)) {
+  nextText = text.replace(anchorRe, (m) => `${m}${eol}${entry}${eol}${eol}---${eol}`);
+} else if (/^# .+\r?\n/m.test(text)) {
+  nextText = text.replace(/^# .+\r?\n/m, (m) => `${m}${eol}## 未发布${eol}${eol}${entry}${eol}${eol}---${eol}`);
+} else {
+  nextText = `## 未发布${eol}${eol}${entry}${eol}${eol}---${eol}${eol}${text}`;
 }
-text = text.replace(anchor, `${anchor}\n${entry}\n\n---\n`);
-fs.writeFileSync(FILE, text);
+
+fs.writeFileSync(FILE, nextText);
 console.log(`已写入 ${stamp}\n${entry}`);

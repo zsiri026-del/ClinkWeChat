@@ -5,7 +5,7 @@ const path = require('node:path');
 const fsp = require('node:fs/promises');
 const { dbg } = require('./config');
 const { ctx, send } = require('./state');
-const { extOf, stamp, guessFileName, fetchBytes } = require('./image-fetch');
+const { MAX_IMG_BYTES, extOf, stamp, guessFileName, fetchBytes } = require('./image-fetch');
 
 const IMG_FILTERS = [
   { name: '图片', extensions: ['png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp', 'svg'] },
@@ -14,6 +14,25 @@ const IMG_FILTERS = [
 
 function notifySaved(filePath) {
   send('app:saved', { path: filePath, name: path.basename(filePath) });
+}
+
+function decodeDataUrlLimited(url, maxBytes = MAX_IMG_BYTES) {
+  const m = /^data:([^;,]*)(;base64)?,([\s\S]*)$/.exec(url);
+  if (!m) throw new Error('无法解析内联图片数据');
+  const mime = m[1] || 'image/png';
+  const body = m[3] || '';
+  if (m[2]) {
+    const estBytes = Math.ceil((body.replace(/\s+/g, '').length * 3) / 4);
+    if (estBytes > maxBytes) throw new Error('图片体积超过 50MB 上限');
+    const buf = Buffer.from(body, 'base64');
+    if (buf.length > maxBytes) throw new Error('图片体积超过 50MB 上限');
+    return { buf, mime };
+  }
+  if (body.length > maxBytes * 3) throw new Error('图片体积超过 50MB 上限');
+  const decoded = decodeURIComponent(body);
+  const buf = Buffer.from(decoded, 'binary');
+  if (buf.length > maxBytes) throw new Error('图片体积超过 50MB 上限');
+  return { buf, mime };
 }
 
 async function writeImage(buf, mime, suggestedName) {
@@ -36,19 +55,17 @@ async function saveImageFromUrl(url, suggestedName) {
   if (!ctx.view || ctx.view.webContents.isDestroyed() || !url) return false;
   try {
     if (url.startsWith('data:')) {
-      const m = /^data:([^;,]*)(;base64)?,([\s\S]*)$/.exec(url);
-      if (!m) throw new Error('无法解析内联图片数据');
-      const mime = m[1] || 'image/png';
-      const buf = m[2] ? Buffer.from(m[3], 'base64') : Buffer.from(decodeURIComponent(m[3]), 'binary');
+      const { buf, mime } = decodeDataUrlLimited(url, MAX_IMG_BYTES);
       return await writeImage(buf, mime, suggestedName || `image-${stamp()}.${extOf(mime)}`);
     }
     if (url.startsWith('blob:')) {
-      const dataUrl = await ctx.view.webContents.executeJavaScript(
-        `(async()=>{try{const r=await fetch(${JSON.stringify(url)});const b=await r.blob();return await new Promise(s=>{const f=new FileReader();f.onload=()=>s(f.result);f.onerror=()=>s('');f.readAsDataURL(b);});}catch{return '';}})()`,
+      const res = await ctx.view.webContents.executeJavaScript(
+        `(async()=>{try{const r=await fetch(${JSON.stringify(url)});const b=await r.blob();if(b.size>${MAX_IMG_BYTES})return '__TOO_LARGE__';return await new Promise(s=>{const f=new FileReader();f.onload=()=>s(f.result);f.onerror=()=>s('');f.readAsDataURL(b);});}catch{return '';}})()`,
         true,
       );
-      if (!dataUrl) throw new Error('该临时图片无法提取原图');
-      return await saveImageFromUrl(dataUrl, suggestedName);
+      if (res === '__TOO_LARGE__') throw new Error('图片体积超过 50MB 上限');
+      if (!res) throw new Error('该临时图片无法提取原图');
+      return await saveImageFromUrl(res, suggestedName);
     }
     if (/^(https?|chrome-extension):/i.test(url)) {
       const { buf, mime } = await fetchBytes(url);
@@ -66,4 +83,4 @@ async function saveImageFromUrl(url, suggestedName) {
   }
 }
 
-module.exports = { guessFileName, fetchBytes, notifySaved, saveImageFromUrl };
+module.exports = { guessFileName, fetchBytes, decodeDataUrlLimited, notifySaved, saveImageFromUrl };

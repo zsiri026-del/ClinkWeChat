@@ -9,11 +9,13 @@ const config = require('../src/main/config.js');
 const state = require('../src/main/state.js');
 const { buildFillScript } = require('../src/main/fill-script.js');
 
-test('trusted host matching works strictly for clink.cn', () => {
+test('trusted host matching works strictly for HTTPS clink.cn', () => {
   assert.equal(config.isTrusted('https://agent-bj.clink.cn/foo'), true);
   assert.equal(config.isTrusted('https://clink.cn/login'), true);
+  assert.equal(config.isTrusted('http://agent-bj.clink.cn/foo'), false);
   assert.equal(config.isTrusted('https://evil-clink.cn/login'), false);
   assert.equal(config.isTrusted('https://example.com'), false);
+  assert.equal(config.isTrusted('javascript:alert(1)'), false);
 });
 
 test('tracked timers are cancelled cleanly on clearAllTimers', async () => {
@@ -33,7 +35,8 @@ test('activity-hook contains zero setInterval calls and zero innerText reflows',
   assert.equal(/\binnerText\b/.test(hook), false);
 });
 
-test('buildFillScript generates syntactically valid JS', () => {
+test('buildFillScript generates syntactically valid JS and enforces login form check', () => {
   const script = buildFillScript('10001', 'agent@test.com', 'p@ss"word', true);
   assert.doesNotThrow(() => new Function(script));
+  assert.equal(script.includes('no-login-form'), true);
 });

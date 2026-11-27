@@ -4,6 +4,7 @@
   const Shell = window.Shell;
   const { $, onCleanup, flashToast } = Shell;
   let lastState = null;
+  let announcedReadyVer = '';
 
   function render(st) {
     if (!st) return;
@@ -15,7 +16,10 @@
       const label = st.mode === 'hot' ? `↑ 热更 v${st.latestVersion} · 重启生效` : `↑ 新版 v${st.latestVersion} · 点击安装`;
       if (pill) { pill.textContent = label; pill.classList.remove('hidden'); }
       if (menuTxt) menuTxt.textContent = `立即应用更新 (v${st.latestVersion})`;
-      flashToast(`新版本 v${st.latestVersion} 已在后台准备就绪，点击右上角即可生效`, 10000);
+      if (announcedReadyVer !== st.latestVersion) {
+        announcedReadyVer = st.latestVersion;
+        flashToast(`新版本 v${st.latestVersion} 已在后台准备就绪，点击右上角即可生效`, 10000);
+      }
       return;
     }
 

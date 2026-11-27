@@ -1,7 +1,7 @@
 'use strict';
 
-const { shell } = require('electron');
 const { TARGET_URL, isTrusted, dbg } = require('./config');
+const { openSafeExternal } = require('./security');
 const { ctx, send } = require('./state');
 const { checkTitleUnread } = require('./attention');
 const { scheduleAutoFill, cancelAutoFill } = require('./autofill');
@@ -20,14 +20,21 @@ function bindViewEvents(view, injectHookFn) {
 
   wc.setWindowOpenHandler(({ url }) => {
     if (isTrusted(url)) wc.loadURL(url);
-    else if (/^https?:/i.test(url)) shell.openExternal(url);
+    else openSafeExternal(url);
     return { action: 'deny' };
   });
 
   wc.on('will-navigate', (event, url) => {
-    if (!isTrusted(url) && /^https?:/i.test(url)) {
+    if (!isTrusted(url)) {
       event.preventDefault();
-      shell.openExternal(url);
+      openSafeExternal(url);
+    }
+  });
+
+  wc.on('will-redirect', (event, url, _isInPlace, isMainFrame) => {
+    if (isMainFrame && !isTrusted(url)) {
+      event.preventDefault();
+      openSafeExternal(url);
     }
   });
 
